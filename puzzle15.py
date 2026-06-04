@@ -73,14 +73,13 @@ components.html("""
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: clamp(8px, 2.4vw, 14px);
-    margin: clamp(12px, 3.2vw, 18px) 0 clamp(10px, 2.8vw, 16px);
+    gap: 4px;
+    margin: clamp(24px, 6.4vw, 36px) 0 4px;
   }
   button {
     font-size: clamp(11px, 3vw, 14px);
-    min-height: 40px;
-    padding: clamp(8px,2.2vw,10px) clamp(14px,4vw,22px);
-    margin: 0;
+    padding: clamp(5px,1.5vw,7px) clamp(10px,3.5vw,18px);
+    margin: 2px;
     border-radius: 8px; border: none; cursor: pointer;
     background: #4a90d9; color: white; font-weight: bold;
   }
