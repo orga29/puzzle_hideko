@@ -480,6 +480,7 @@ function doMove(pos) {
 
   if (board.join(',') === '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0') {
     setTimeout(() => {
+      if (board.join(',') !== '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0') return;
       document.getElementById('msg').textContent = `🎉 クリア！ ${moves} 手で完成！`;
       launchConfetti();
     }, 1200);
