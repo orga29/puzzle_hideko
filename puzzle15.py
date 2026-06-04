@@ -36,6 +36,7 @@ components.html("""
     min-height: 30px;
     width: min(86vw, 400px);
     margin: 0 auto;
+    margin-bottom: clamp(8px, 2.4vw, 12px);
     display: flex;
     align-items: center;
     justify-content: center;
