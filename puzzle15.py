@@ -2,7 +2,15 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="15Puzzle", layout="centered")
-st.markdown("<p style='font-size:clamp(12px,3.5vw,15px); font-weight:bold; margin:0 0 4px;'>🔢15Puzzle</p>", unsafe_allow_html=True)
+
+# Streamlitヘッダー・余白を非表示にしてゲームを全画面に近づける
+st.markdown("""<style>
+header[data-testid="stHeader"] { display: none !important; }
+[data-testid="stToolbar"] { display: none !important; }
+[data-testid="stDecoration"] { display: none !important; }
+.block-container { padding-top: 0.2rem !important; padding-bottom: 0 !important; }
+.stMainBlockContainer { padding-top: 0.2rem !important; }
+</style>""", unsafe_allow_html=True)
 
 components.html("""
 <!DOCTYPE html>
@@ -13,12 +21,13 @@ components.html("""
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; background: #f0f0f0; display: flex; justify-content: center; }
-  #app { font-family: Arial, sans-serif; text-align: center; padding: 8px; width: 100%; max-width: 480px; }
-  #info { font-size: clamp(14px, 4vw, 20px); margin: 6px 0; font-weight: bold; }
+  #app { font-family: Arial, sans-serif; text-align: center; padding: 2px 4px; width: 100%; max-width: 480px; }
+  #title { font-size: clamp(11px, 3vw, 14px); font-weight: bold; margin: 0 0 2px; }
+  #info { font-size: clamp(12px, 3.5vw, 17px); margin: 2px 0; font-weight: bold; }
   #board {
     position: relative;
-    width: min(90vw, 440px);
-    height: min(90vw, 440px);
+    width: min(88vw, 420px);
+    height: min(88vw, 420px);
     background: #8ab4d4;
     border-radius: 12px;
     display: inline-block;
@@ -51,11 +60,11 @@ components.html("""
                box-shadow: 0 0 14px 4px rgba(255,160,0,0.7); }
   }
   .tile.hint { animation: hint-pulse 0.6s ease-in-out 3; }
-  .btns { margin: 10px 0; }
+  .btns { margin: 4px 0; }
   button {
-    font-size: clamp(12px, 3.5vw, 15px);
-    padding: clamp(6px,2vw,8px) clamp(12px,4vw,20px);
-    margin: 3px;
+    font-size: clamp(11px, 3vw, 14px);
+    padding: clamp(5px,1.5vw,7px) clamp(10px,3.5vw,18px);
+    margin: 2px;
     border-radius: 8px; border: none; cursor: pointer;
     background: #4a90d9; color: white; font-weight: bold;
   }
@@ -64,7 +73,7 @@ components.html("""
   #soundBtn:hover { background: #3d8b3d; }
   #soundBtn.muted { background: #aaa; }
   #soundBtn.muted:hover { background: #888; }
-  #msg { font-size: clamp(16px, 4.5vw, 22px); color: #c00; font-weight: bold; min-height: 32px; margin: 10px 0 28px; }
+  #msg { font-size: clamp(14px, 4vw, 20px); color: #c00; font-weight: bold; min-height: 22px; margin: 4px 0 6px; }
   #confetti-canvas {
     position: fixed;
     top: 0; left: 0;
@@ -114,6 +123,7 @@ components.html("""
 </head>
 <body>
 <div id="app">
+  <div id="title">🔢15Puzzle</div>
   <div id="info">移動回数: 0</div>
   <div id="board"></div>
   <div class="btns">
@@ -144,7 +154,7 @@ const tileEls = new Map();
 
 function getMetrics() {
   const boardEl = document.getElementById('board');
-  const boardSize = boardEl.offsetWidth || 414;
+  const boardSize = boardEl.offsetWidth || 400;
   const PAD = Math.max(2, Math.round(boardSize * 0.007));
   const GAP = Math.max(1, Math.round(boardSize * 0.005));
   const TILE = Math.floor((boardSize - 2 * PAD - 3 * GAP) / 4);
@@ -461,7 +471,7 @@ function playPop() {
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
 
-  // [1] 瞬間衝撃「ドン」: 低域を急速に下降させる
+  // [1] 瞬間衝撃「ドン」
   const boom = ctx.createOscillator();
   boom.type = 'sine';
   boom.frequency.setValueAtTime(130, now);
@@ -472,7 +482,7 @@ function playPop() {
   boom.connect(boomGain); boomGain.connect(ctx.destination);
   boom.start(now); boom.stop(now + 0.3);
 
-  // [2] 中域余韻「パーーーン」: 2.5秒かけてゆっくり消える共鳴
+  // [2] 中域余韻「パーーーン」（2.5秒）
   const ring = ctx.createOscillator();
   ring.type = 'sine';
   ring.frequency.setValueAtTime(380, now);
@@ -484,7 +494,7 @@ function playPop() {
   ring.connect(ringGain); ringGain.connect(ctx.destination);
   ring.start(now); ring.stop(now + 2.5);
 
-  // [3] 破裂ノイズ「シュパッ」: 高域の瞬間バースト
+  // [3] 破裂ノイズ「シュパッ」
   const burstLen = Math.floor(ctx.sampleRate * 0.35);
   const burstBuf = ctx.createBuffer(1, burstLen, ctx.sampleRate);
   const bd = burstBuf.getChannelData(0);
@@ -501,7 +511,7 @@ function playPop() {
   burstSrc.connect(hp); hp.connect(burstGain); burstGain.connect(ctx.destination);
   burstSrc.start(now);
 
-  // [4] 遠鳴り余韻ノイズ: 低域でゆっくり消える「ゴーーー」（2秒）
+  // [4] 遠鳴り余韻ノイズ（2秒）
   const tailLen = Math.floor(ctx.sampleRate * 2.0);
   const tailBuf = ctx.createBuffer(1, tailLen, ctx.sampleRate);
   const td = tailBuf.getChannelData(0);
@@ -596,8 +606,7 @@ function showCongrats() {
   text.style.animation = '';
   overlay.classList.add('show');
   setTimeout(() => {
-    text.style.animation =
-      'congrats-fade-out 0.8s ease-in forwards';
+    text.style.animation = 'congrats-fade-out 0.8s ease-in forwards';
     setTimeout(() => overlay.classList.remove('show'), 800);
   }, 3000);
 }
