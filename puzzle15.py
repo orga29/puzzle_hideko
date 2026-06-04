@@ -3,14 +3,23 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="15Puzzle", layout="centered")
 
-# Streamlitヘッダー・余白を非表示にしてゲームを全画面に近づける
-st.markdown("""<style>
+# Streamlitのヘッダー・フッター・余白を非表示にしてゲームを最大化
+st.markdown("""
+<style>
 header[data-testid="stHeader"] { display: none !important; }
 [data-testid="stToolbar"] { display: none !important; }
 [data-testid="stDecoration"] { display: none !important; }
-.block-container { padding-top: 0.2rem !important; padding-bottom: 0 !important; }
+#MainMenu { display: none !important; }
+footer { display: none !important; }
+.block-container {
+    padding-top: 0.2rem !important;
+    padding-bottom: 0 !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
 .stMainBlockContainer { padding-top: 0.2rem !important; }
-</style>""", unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
 components.html("""
 <!DOCTYPE html>
@@ -26,8 +35,8 @@ components.html("""
   #info { font-size: clamp(12px, 3.5vw, 17px); margin: 2px 0; font-weight: bold; }
   #board {
     position: relative;
-    width: min(88vw, 420px);
-    height: min(88vw, 420px);
+    width: min(86vw, 400px);
+    height: min(86vw, 400px);
     background: #8ab4d4;
     border-radius: 12px;
     display: inline-block;
@@ -154,7 +163,7 @@ const tileEls = new Map();
 
 function getMetrics() {
   const boardEl = document.getElementById('board');
-  const boardSize = boardEl.offsetWidth || 400;
+  const boardSize = boardEl.offsetWidth || 380;
   const PAD = Math.max(2, Math.round(boardSize * 0.007));
   const GAP = Math.max(1, Math.round(boardSize * 0.005));
   const TILE = Math.floor((boardSize - 2 * PAD - 3 * GAP) / 4);
@@ -309,7 +318,6 @@ function resetBoard() {
   updatePositions(false);
 }
 
-// --- IDA* ヒントソルバー ---
 function manhattan(b) {
   let d = 0;
   for (let i = 0; i < 16; i++) {
@@ -422,7 +430,6 @@ function showHint() {
 
 initTiles();
 
-// --- 効果音 (Web Audio API) ---
 let audioCtx = null;
 let soundEnabled = true;
 
@@ -443,7 +450,6 @@ function getAudioCtx() {
   return audioCtx;
 }
 
-// タイルが止まるときの「カチッ」
 function playClick() {
   if (!soundEnabled) return;
   const ctx = getAudioCtx();
@@ -465,13 +471,11 @@ function playClick() {
   src.start();
 }
 
-// クリア時の花火「パーーーン」
 function playPop() {
   if (!soundEnabled) return;
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
 
-  // [1] 瞬間衝撃「ドン」
   const boom = ctx.createOscillator();
   boom.type = 'sine';
   boom.frequency.setValueAtTime(130, now);
@@ -482,7 +486,6 @@ function playPop() {
   boom.connect(boomGain); boomGain.connect(ctx.destination);
   boom.start(now); boom.stop(now + 0.3);
 
-  // [2] 中域余韻「パーーーン」（2.5秒）
   const ring = ctx.createOscillator();
   ring.type = 'sine';
   ring.frequency.setValueAtTime(380, now);
@@ -494,7 +497,6 @@ function playPop() {
   ring.connect(ringGain); ringGain.connect(ctx.destination);
   ring.start(now); ring.stop(now + 2.5);
 
-  // [3] 破裂ノイズ「シュパッ」
   const burstLen = Math.floor(ctx.sampleRate * 0.35);
   const burstBuf = ctx.createBuffer(1, burstLen, ctx.sampleRate);
   const bd = burstBuf.getChannelData(0);
@@ -511,7 +513,6 @@ function playPop() {
   burstSrc.connect(hp); hp.connect(burstGain); burstGain.connect(ctx.destination);
   burstSrc.start(now);
 
-  // [4] 遠鳴り余韻ノイズ（2秒）
   const tailLen = Math.floor(ctx.sampleRate * 2.0);
   const tailBuf = ctx.createBuffer(1, tailLen, ctx.sampleRate);
   const td = tailBuf.getChannelData(0);
@@ -530,7 +531,6 @@ function playPop() {
   tailSrc.start(now);
 }
 
-// --- 紙吹雪アニメーション ---
 function launchConfetti() {
   playPop();
   const canvas = document.getElementById('confetti-canvas');
@@ -613,4 +613,4 @@ function showCongrats() {
 </script>
 </body>
 </html>
-""", height=680)
+""", height=660)
