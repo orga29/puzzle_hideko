@@ -83,6 +83,81 @@ components.html("""
   #soundBtn.muted { background: #aaa; }
   #soundBtn.muted:hover { background: #888; }
   #msg { font-size: clamp(14px, 4vw, 20px); color: #c00; font-weight: bold; min-height: 22px; margin: 4px 0 6px; }
+  .info-links {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 2px 0 6px;
+    font-size: clamp(11px, 3vw, 13px);
+  }
+  .info-link {
+    padding: 2px 0;
+    color: #2f6fa8;
+    background: transparent;
+    border: none;
+    font: inherit;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .info-link:hover { color: #174e7b; background: transparent; }
+  #info-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0,0,0,0.42);
+    z-index: 11000;
+  }
+  #info-modal.show { display: flex; }
+  .modal-panel {
+    width: min(92vw, 440px);
+    max-height: min(82vh, 620px);
+    overflow-y: auto;
+    background: #ffffff;
+    border: 3px solid #4a90d9;
+    border-radius: 8px;
+    box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+    text-align: left;
+  }
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px 8px;
+    border-bottom: 1px solid #d7e3ee;
+  }
+  #modal-title {
+    margin: 0;
+    color: #174e7b;
+    font-size: clamp(18px, 5vw, 22px);
+    line-height: 1.25;
+  }
+  .modal-close {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    padding: 0;
+    margin: 0;
+    border-radius: 50%;
+    background: #e8eef5;
+    color: #174e7b;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .modal-close:hover { background: #d4e2f0; color: #0f3858; }
+  #modal-body {
+    padding: 12px 16px 16px;
+    color: #222;
+    font-size: clamp(14px, 3.8vw, 16px);
+    line-height: 1.7;
+  }
+  #modal-body p { margin: 0 0 10px; }
+  #modal-body ol { margin: 0; padding-left: 1.35em; }
+  #modal-body li { margin: 0 0 8px; }
   #confetti-canvas {
     position: fixed;
     top: 0; left: 0;
@@ -170,10 +245,23 @@ components.html("""
     <button onclick="toggleSound()" id="soundBtn">🔊 音ON</button>
   </div>
   <div id="msg"></div>
+  <div class="info-links">
+    <button class="info-link" onclick="openInfoModal('howto')">遊び方</button>
+    <button class="info-link" onclick="openInfoModal('history')">15パズルの歴史的背景</button>
+  </div>
 </div>
 <canvas id="confetti-canvas"></canvas>
 <div id="congrats-overlay">
   <span id="congrats-text"><span class="congrats-icon">🎊</span><span class="congrats-label">クリアおめでとう</span></span>
+</div>
+<div id="info-modal" onclick="closeInfoModal(event)">
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h2 id="modal-title"></h2>
+      <button class="modal-close" onclick="closeInfoModal()" aria-label="閉じる">×</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
 </div>
 
 <script>
@@ -184,10 +272,48 @@ const COLORS = {
   9:"#1a7a3c",10:"#1a7a3c",11:"#1a7a3c",12:"#1a7a3c",
   13:"#b71c1c",14:"#b71c1c",15:"#b71c1c"
 };
+const INFO_CONTENT = {
+  howto: {
+    title: '遊び方',
+    body: `
+      <ol>
+        <li>「シャッフル」ボタンで盤面を混ぜます。</li>
+        <li>空きマスに隣り合うタイルをタップ、クリック、またはスワイプして動かします。</li>
+        <li>数字を1から15まで順番に並べ、空きマスを右下に戻すとクリアです。</li>
+        <li>困ったときは「ヒント」ボタンで、次に動かすタイルを確認できます。</li>
+      </ol>
+    `
+  },
+  history: {
+    title: '15パズルの歴史的背景',
+    body: `
+      <p>15パズルは、19世紀後半に広まった古典的なスライディングパズルです。4x4の盤面でタイルを動かし、1から15までを順番にそろえる遊びとして知られています。</p>
+      <p>一般にはアメリカのパズル作家サム・ロイドの名前と結びつけられることがありますが、現在ではニューヨーク州カナストータの郵便局長だったノイズ・パーマー・チャップマンが初期の考案者として知られています。</p>
+      <p>1880年ごろにはアメリカやヨーロッパで大流行しました。14と15のタイルだけを入れ替えた配置を解けるかどうかという話題も有名ですが、この配置は通常のルールでは解けません。そのため、15パズルは遊びとしてだけでなく、置換や偶奇性といった数学的な性質を考える題材にもなっています。</p>
+    `
+  }
+};
 
 let board = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0];
 let moves = 0;
 const tileEls = new Map();
+
+function openInfoModal(type) {
+  const content = INFO_CONTENT[type];
+  if (!content) return;
+  document.getElementById('modal-title').textContent = content.title;
+  document.getElementById('modal-body').innerHTML = content.body;
+  document.getElementById('info-modal').classList.add('show');
+}
+
+function closeInfoModal(event) {
+  if (event && event.target && event.target.id !== 'info-modal') return;
+  document.getElementById('info-modal').classList.remove('show');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeInfoModal();
+});
 
 function getMetrics() {
   const boardEl = document.getElementById('board');
