@@ -256,6 +256,10 @@ function doMove(pos) {
   document.getElementById('info').textContent = `移動回数: ${moves}`;
   document.getElementById('msg').textContent = '';
   updatePositions(true);
+
+  // スライド完了後（transition: 0.15s）に「カチッ」
+  setTimeout(() => playClick(), 150);
+
   if (board.join(',') === '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0') {
     setTimeout(() => {
       document.getElementById('msg').textContent = `🎉 クリア！ ${moves} 手で完成！`;
@@ -403,6 +407,36 @@ function showHint() {
 
 initTiles();
 
+// --- "カチッ" 効果音 (Web Audio API) ---
+let audioCtx = null;
+function playClick() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const bufLen = Math.floor(audioCtx.sampleRate * 0.04); // 40ms
+  const buf = audioCtx.createBuffer(1, bufLen, audioCtx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufLen; i++) {
+    // ホワイトノイズを指数減衰
+    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufLen, 6);
+  }
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+
+  // 高域強調フィルター（カチッの硬い質感）
+  const hipass = audioCtx.createBiquadFilter();
+  hipass.type = 'highpass';
+  hipass.frequency.value = 3000;
+
+  const gain = audioCtx.createGain();
+  gain.gain.setValueAtTime(1.2, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+
+  src.connect(hipass);
+  hipass.connect(gain);
+  gain.connect(audioCtx.destination);
+  src.start();
+}
+
+// --- 紙吹雪アニメーション ---
 function launchConfetti() {
   const canvas = document.getElementById('confetti-canvas');
   const ctx = canvas.getContext('2d');
