@@ -1,8 +1,8 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="15パズル", layout="centered")
-st.title("🔢 15パズル")
+st.set_page_config(page_title="15Puzzle", layout="centered")
+st.markdown("<p style='font-size:clamp(12px,3.5vw,15px); font-weight:bold; margin:0 0 4px;'>🔢15Puzzle</p>", unsafe_allow_html=True)
 
 components.html("""
 <!DOCTYPE html>
