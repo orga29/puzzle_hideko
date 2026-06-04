@@ -41,7 +41,7 @@ components.html("""
     justify-content: center;
   }
   #title { font-size: clamp(16px, 4.6vw, 22px); font-weight: bold; margin: 0 0 2px; }
-  #info { font-size: clamp(12px, 3.5vw, 17px); margin: 2px 0; font-weight: bold; }
+  #info { font-size: clamp(12px, 3.5vw, 17px); margin: 8px 0 0; font-weight: bold; }
   #board {
     position: relative;
     width: min(86vw, 400px);
@@ -118,7 +118,7 @@ components.html("""
     display: flex;
     justify-content: center;
     gap: 14px;
-    margin: 0 0 4px;
+    margin: clamp(22px, 6vw, 34px) 0 4px;
     font-size: clamp(11px, 3vw, 13px);
   }
   .info-link {
@@ -278,8 +278,8 @@ components.html("""
     <div id="title">🔢15Puzzle</div>
     <button onclick="toggleSound()" id="soundBtn">🔊 音ON</button>
   </div>
-  <div id="info">移動回数: 0</div>
   <div id="board"></div>
+  <div id="info">移動回数: 0</div>
   <div class="btns">
     <button onclick="shuffleBoard()">🔀 シャッフル</button>
     <button onclick="resetBoard()">🔄 リセット</button>
