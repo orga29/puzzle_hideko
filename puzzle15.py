@@ -287,7 +287,7 @@ function doMove(pos) {
     setTimeout(() => {
       document.getElementById('msg').textContent = `🎉 クリア！ ${moves} 手で完成！`;
       launchConfetti();
-    }, 200);
+    }, 1200);
   }
 }
 
@@ -477,39 +477,35 @@ function playFanfare() {
   const now = ctx.currentTime;
 
   const master = ctx.createGain();
-  master.gain.setValueAtTime(0.8, now);
-  master.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
+  master.gain.setValueAtTime(0.75, now);
+  master.gain.exponentialRampToValueAtTime(0.001, now + 3.0);
   master.connect(ctx.destination);
 
-  function playTone(freq, start, duration, volume = 0.32) {
+  function playTone(freq, start, duration, volume = 0.28) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = 'triangle';
+    osc.type = 'sawtooth';
     osc.frequency.setValueAtTime(freq, start);
-    osc.frequency.linearRampToValueAtTime(freq * 1.01, start + duration * 0.18);
+    osc.frequency.linearRampToValueAtTime(freq * 1.006, start + duration * 0.15);
     gain.gain.setValueAtTime(0.001, start);
-    gain.gain.linearRampToValueAtTime(volume, start + 0.025);
+    gain.gain.linearRampToValueAtTime(volume, start + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
     osc.connect(gain); gain.connect(master);
     osc.start(start); osc.stop(start + duration + 0.03);
   }
 
-  const melody = [
-    [523.25, 0.00, 0.18],
-    [659.25, 0.18, 0.18],
-    [783.99, 0.36, 0.22],
-    [1046.50, 0.62, 0.42],
-    [783.99, 1.08, 0.18],
-    [1046.50, 1.26, 0.18],
-    [1318.51, 1.44, 0.52],
+  const hits = [
+    [392.00, 0.00, 0.18],
+    [523.25, 0.22, 0.18],
+    [659.25, 0.44, 0.22],
   ];
-  melody.forEach(([freq, start, duration]) => {
-    playTone(freq, now + start, duration);
+  hits.forEach(([freq, start, duration]) => {
+    playTone(freq, now + start, duration, 0.34);
   });
 
-  const chordStart = now + 1.48;
-  [523.25, 659.25, 783.99, 1046.50].forEach((freq) => {
-    playTone(freq, chordStart, 0.72, 0.22);
+  const chordStart = now + 0.72;
+  [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq) => {
+    playTone(freq, chordStart, 1.85, 0.20);
   });
 }
 
