@@ -69,11 +69,18 @@ components.html("""
                box-shadow: 0 0 14px 4px rgba(255,160,0,0.7); }
   }
   .tile.hint { animation: hint-pulse 0.6s ease-in-out 3; }
-  .btns { margin: 4px 0; }
+  .btns {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: clamp(8px, 2.4vw, 14px);
+    margin: clamp(12px, 3.2vw, 18px) 0 clamp(10px, 2.8vw, 16px);
+  }
   button {
     font-size: clamp(11px, 3vw, 14px);
-    padding: clamp(5px,1.5vw,7px) clamp(10px,3.5vw,18px);
-    margin: 2px;
+    min-height: 40px;
+    padding: clamp(8px,2.2vw,10px) clamp(14px,4vw,22px);
+    margin: 0;
     border-radius: 8px; border: none; cursor: pointer;
     background: #4a90d9; color: white; font-weight: bold;
   }
