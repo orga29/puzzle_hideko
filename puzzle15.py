@@ -706,7 +706,7 @@ function launchConfetti() {
   const congratsTimer = setTimeout(() => {
     congratsShown = true;
     showCongrats();
-  }, 3000);
+  }, 2200);
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
