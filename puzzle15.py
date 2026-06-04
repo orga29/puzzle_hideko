@@ -244,13 +244,13 @@ components.html("""
       4px -4px 0 #f54c48,
       -4px -4px 0 #f54c48,
       0 8px 0 rgba(177,33,31,0.5);
-    animation: congrats-pop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both,
-               congrats-shine 2s 0.6s ease-in-out infinite alternate;
+    animation: congrats-pop 0.95s cubic-bezier(0.16,0.84,0.28,1.0) both,
+           congrats-shine 2.6s 0.95s ease-in-out infinite alternate;
     filter: drop-shadow(0 5px 0 rgba(177,33,31,0.45));
   }
   @keyframes congrats-pop {
     0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
-    70%  { transform: scale(1.15) rotate(3deg); opacity: 1; }
+    78%  { transform: scale(1.10) rotate(2deg); opacity: 1; }
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
   @keyframes congrats-shine {
