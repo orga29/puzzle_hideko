@@ -193,26 +193,26 @@ components.html("""
     font-weight: 900;
     letter-spacing: 2px;
     color: #ffffff;
-    -webkit-text-stroke: clamp(2px, 0.55vw, 5px) #ef3f3b;
+    -webkit-text-stroke: clamp(1px, 0.42vw, 4px) #ef3f3b;
     paint-order: stroke fill;
     text-shadow:
-      4px 0 0 #ef3f3b,
-      -4px 0 0 #ef3f3b,
-      0 4px 0 #ef3f3b,
-      0 -4px 0 #ef3f3b,
-      3px 3px 0 #ef3f3b,
-      -3px 3px 0 #ef3f3b,
-      3px -3px 0 #ef3f3b,
-      -3px -3px 0 #ef3f3b,
-      7px 0 0 #f54c48,
-      -7px 0 0 #f54c48,
-      0 7px 0 #f54c48,
-      0 -7px 0 #f54c48,
-      5px 5px 0 #f54c48,
-      -5px 5px 0 #f54c48,
-      5px -5px 0 #f54c48,
-      -5px -5px 0 #f54c48,
-      0 10px 0 rgba(177,33,31,0.55);
+      3px 0 0 #ef3f3b,
+      -3px 0 0 #ef3f3b,
+      0 3px 0 #ef3f3b,
+      0 -3px 0 #ef3f3b,
+      2px 2px 0 #ef3f3b,
+      -2px 2px 0 #ef3f3b,
+      2px -2px 0 #ef3f3b,
+      -2px -2px 0 #ef3f3b,
+      5px 0 0 #f54c48,
+      -5px 0 0 #f54c48,
+      0 5px 0 #f54c48,
+      0 -5px 0 #f54c48,
+      4px 4px 0 #f54c48,
+      -4px 4px 0 #f54c48,
+      4px -4px 0 #f54c48,
+      -4px -4px 0 #f54c48,
+      0 8px 0 rgba(177,33,31,0.5);
     animation: congrats-pop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both,
                congrats-shine 2s 0.6s ease-in-out infinite alternate;
     filter: drop-shadow(0 5px 0 rgba(177,33,31,0.45));
@@ -656,45 +656,20 @@ function playFanfare() {
     osc.start(start); osc.stop(start + duration + 0.03);
   }
 
-  function playCheer(start) {
-    const duration = 1.35;
-    const bufLen = Math.floor(ctx.sampleRate * duration);
-    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < bufLen; i++) {
-      const t = i / bufLen;
-      const swell = Math.sin(Math.PI * t);
-      data[i] = (Math.random() * 2 - 1) * swell * 0.55;
-    }
-
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const bandpass = ctx.createBiquadFilter();
-    bandpass.type = 'bandpass';
-    bandpass.frequency.setValueAtTime(1200, start);
-    bandpass.Q.value = 0.75;
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.001, start);
-    gain.gain.linearRampToValueAtTime(0.18, start + 0.18);
-    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
-    src.connect(bandpass); bandpass.connect(gain); gain.connect(master);
-    src.start(start); src.stop(start + duration + 0.03);
-  }
-
-  const hits = [
-    [392.00, 0.00, 0.18],
-    [523.25, 0.22, 0.18],
-    [659.25, 0.44, 0.22],
+  const notes = [
+    [523.25, 0.00, 0.18, 0.34],
+    [659.25, 0.24, 0.13, 0.30],
+    [783.99, 0.39, 0.13, 0.30],
+    [1046.50, 0.58, 0.50, 0.32],
   ];
-  hits.forEach(([freq, start, duration]) => {
-    playTone(freq, now + start, duration, 0.34);
+  notes.forEach(([freq, start, duration, volume]) => {
+    playTone(freq, now + start, duration, volume);
   });
 
-  const chordStart = now + 0.72;
-  [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq) => {
-    playTone(freq, chordStart, 1.85, 0.20);
+  const chordStart = now + 0.62;
+  [523.25, 659.25, 783.99, 1046.50].forEach((freq) => {
+    playTone(freq, chordStart, 1.65, 0.20);
   });
-  playCheer(now + 1.48);
 }
 
 function launchConfetti() {
