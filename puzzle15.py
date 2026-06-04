@@ -97,23 +97,42 @@ components.html("""
     width: 100%; height: 100%;
     justify-content: center;
     align-items: center;
+    padding: 0 4vw;
     pointer-events: none;
     z-index: 10000;
   }
   #congrats-overlay.show { display: flex; }
   #congrats-text {
     font-family: 'Georgia', serif;
-    font-size: clamp(32px, 9vw, 64px);
+    position: relative;
+    top: -3vh;
+    width: 100%;
+    text-align: center;
+    font-size: clamp(32px, 10vw, 120px);
+    line-height: 1.08;
     font-weight: 900;
     letter-spacing: 2px;
-    background: linear-gradient(135deg, #f9c200, #ff6b6b, #a855f7, #3b82f6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: none;
+    color: #f0182d;
+    -webkit-text-stroke: clamp(3px, 0.8vw, 8px) #ffffff;
+    paint-order: stroke fill;
+    text-shadow:
+      3px 0 0 #ffd400,
+      -3px 0 0 #ffd400,
+      0 3px 0 #ffd400,
+      0 -3px 0 #ffd400,
+      2px 2px 0 #333333,
+      -2px 2px 0 #333333,
+      2px -2px 0 #333333,
+      -2px -2px 0 #333333,
+      4px 4px 0 #222222,
+      -4px 4px 0 #222222,
+      4px -4px 0 #222222,
+      -4px -4px 0 #222222,
+      0 7px 0 #222222,
+      0 12px 0 rgba(0,0,0,0.42);
     animation: congrats-pop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both,
                congrats-shine 2s 0.6s ease-in-out infinite alternate;
-    filter: drop-shadow(0 4px 16px rgba(249,194,0,0.5));
+    filter: drop-shadow(0 5px 0 #222222);
   }
   @keyframes congrats-pop {
     0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
@@ -121,8 +140,17 @@ components.html("""
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
   @keyframes congrats-shine {
-    0%   { filter: drop-shadow(0 4px 16px rgba(249,194,0,0.5)); }
-    100% { filter: drop-shadow(0 4px 28px rgba(168,85,247,0.7)); }
+    0%   { filter: drop-shadow(0 5px 0 #222222); }
+    100% { filter: drop-shadow(0 7px 0 #111111); }
+  }
+  .congrats-icon {
+    display: block;
+    font-size: 1.15em;
+    line-height: 1;
+    margin-bottom: 0.34em;
+  }
+  .congrats-label {
+    display: block;
   }
   @keyframes congrats-fade-out {
     0%   { opacity: 1; transform: scale(1); }
@@ -145,7 +173,7 @@ components.html("""
 </div>
 <canvas id="confetti-canvas"></canvas>
 <div id="congrats-overlay">
-  <span id="congrats-text">Congratulations✨</span>
+  <span id="congrats-text"><span class="congrats-icon">🎊</span><span class="congrats-label">クリアおめでとう</span></span>
 </div>
 
 <script>
@@ -539,6 +567,12 @@ function launchConfetti() {
   }
 
   let frame;
+  let congratsShown = false;
+  const congratsTimer = setTimeout(() => {
+    congratsShown = true;
+    showCongrats();
+  }, 3000);
+
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let alive = false;
@@ -569,7 +603,11 @@ function launchConfetti() {
       frame = requestAnimationFrame(draw);
     } else {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      showCongrats();
+      if (!congratsShown) {
+        clearTimeout(congratsTimer);
+        congratsShown = true;
+        showCongrats();
+      }
     }
   }
   if (frame) cancelAnimationFrame(frame);
