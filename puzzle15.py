@@ -299,6 +299,7 @@ function resetBoard() {
   updatePositions(false);
 }
 
+// --- IDA* ヒントソルバー ---
 function manhattan(b) {
   let d = 0;
   for (let i = 0; i < 16; i++) {
@@ -432,6 +433,7 @@ function getAudioCtx() {
   return audioCtx;
 }
 
+// タイルが止まるときの「カチッ」
 function playClick() {
   if (!soundEnabled) return;
   const ctx = getAudioCtx();
@@ -453,38 +455,69 @@ function playClick() {
   src.start();
 }
 
+// クリア時の花火「パーーーン」
 function playPop() {
   if (!soundEnabled) return;
   const ctx = getAudioCtx();
   const now = ctx.currentTime;
 
-  const osc = ctx.createOscillator();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(180, now);
-  osc.frequency.exponentialRampToValueAtTime(60, now + 0.15);
-  const oscGain = ctx.createGain();
-  oscGain.gain.setValueAtTime(1.0, now);
-  oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-  osc.connect(oscGain); oscGain.connect(ctx.destination);
-  osc.start(now); osc.stop(now + 0.3);
+  // [1] 瞬間衝撃「ドン」: 低域を急速に下降させる
+  const boom = ctx.createOscillator();
+  boom.type = 'sine';
+  boom.frequency.setValueAtTime(130, now);
+  boom.frequency.exponentialRampToValueAtTime(28, now + 0.08);
+  const boomGain = ctx.createGain();
+  boomGain.gain.setValueAtTime(2.2, now);
+  boomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+  boom.connect(boomGain); boomGain.connect(ctx.destination);
+  boom.start(now); boom.stop(now + 0.3);
 
-  const bufLen = Math.floor(ctx.sampleRate * 0.25);
-  const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < bufLen; i++) {
-    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufLen, 2);
+  // [2] 中域余韻「パーーーン」: 2.5秒かけてゆっくり消える共鳴
+  const ring = ctx.createOscillator();
+  ring.type = 'sine';
+  ring.frequency.setValueAtTime(380, now);
+  ring.frequency.exponentialRampToValueAtTime(180, now + 2.5);
+  const ringGain = ctx.createGain();
+  ringGain.gain.setValueAtTime(0.0, now);
+  ringGain.gain.linearRampToValueAtTime(0.6, now + 0.04);
+  ringGain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+  ring.connect(ringGain); ringGain.connect(ctx.destination);
+  ring.start(now); ring.stop(now + 2.5);
+
+  // [3] 破裂ノイズ「シュパッ」: 高域の瞬間バースト
+  const burstLen = Math.floor(ctx.sampleRate * 0.35);
+  const burstBuf = ctx.createBuffer(1, burstLen, ctx.sampleRate);
+  const bd = burstBuf.getChannelData(0);
+  for (let i = 0; i < burstLen; i++) {
+    bd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / burstLen, 1.5);
   }
-  const noiseSrc = ctx.createBufferSource();
-  noiseSrc.buffer = buf;
-  const bandpass = ctx.createBiquadFilter();
-  bandpass.type = 'bandpass';
-  bandpass.frequency.value = 4000;
-  bandpass.Q.value = 0.8;
-  const noiseGain = ctx.createGain();
-  noiseGain.gain.setValueAtTime(0.6, now);
-  noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
-  noiseSrc.connect(bandpass); bandpass.connect(noiseGain); noiseGain.connect(ctx.destination);
-  noiseSrc.start(now);
+  const burstSrc = ctx.createBufferSource();
+  burstSrc.buffer = burstBuf;
+  const hp = ctx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 2500;
+  const burstGain = ctx.createGain();
+  burstGain.gain.setValueAtTime(1.2, now);
+  burstGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+  burstSrc.connect(hp); hp.connect(burstGain); burstGain.connect(ctx.destination);
+  burstSrc.start(now);
+
+  // [4] 遠鳴り余韻ノイズ: 低域でゆっくり消える「ゴーーー」（2秒）
+  const tailLen = Math.floor(ctx.sampleRate * 2.0);
+  const tailBuf = ctx.createBuffer(1, tailLen, ctx.sampleRate);
+  const td = tailBuf.getChannelData(0);
+  for (let i = 0; i < tailLen; i++) {
+    td[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / tailLen, 0.6);
+  }
+  const tailSrc = ctx.createBufferSource();
+  tailSrc.buffer = tailBuf;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 500;
+  const tailGain = ctx.createGain();
+  tailGain.gain.setValueAtTime(0.0, now);
+  tailGain.gain.linearRampToValueAtTime(0.35, now + 0.06);
+  tailGain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+  tailSrc.connect(lp); lp.connect(tailGain); tailGain.connect(ctx.destination);
+  tailSrc.start(now);
 }
 
 // --- 紙吹雪アニメーション ---
