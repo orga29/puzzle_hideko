@@ -158,6 +158,11 @@ components.html("""
   #modal-body p { margin: 0 0 10px; }
   #modal-body ol { margin: 0; padding-left: 1.35em; }
   #modal-body li { margin: 0 0 8px; }
+  @media (max-width: 600px) {
+    #app {
+      padding-top: clamp(48px, 9vh, 78px);
+    }
+  }
   #confetti-canvas {
     position: fixed;
     top: 0; left: 0;
