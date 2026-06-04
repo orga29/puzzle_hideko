@@ -192,27 +192,30 @@ components.html("""
     line-height: 1.08;
     font-weight: 900;
     letter-spacing: 2px;
-    color: #f0182d;
-    -webkit-text-stroke: clamp(3px, 0.8vw, 8px) #ffffff;
+    color: #ffffff;
+    -webkit-text-stroke: clamp(2px, 0.55vw, 5px) #ef3f3b;
     paint-order: stroke fill;
     text-shadow:
-      3px 0 0 #ffd400,
-      -3px 0 0 #ffd400,
-      0 3px 0 #ffd400,
-      0 -3px 0 #ffd400,
-      2px 2px 0 #333333,
-      -2px 2px 0 #333333,
-      2px -2px 0 #333333,
-      -2px -2px 0 #333333,
-      4px 4px 0 #222222,
-      -4px 4px 0 #222222,
-      4px -4px 0 #222222,
-      -4px -4px 0 #222222,
-      0 7px 0 #222222,
-      0 12px 0 rgba(0,0,0,0.42);
+      4px 0 0 #ef3f3b,
+      -4px 0 0 #ef3f3b,
+      0 4px 0 #ef3f3b,
+      0 -4px 0 #ef3f3b,
+      3px 3px 0 #ef3f3b,
+      -3px 3px 0 #ef3f3b,
+      3px -3px 0 #ef3f3b,
+      -3px -3px 0 #ef3f3b,
+      7px 0 0 #f54c48,
+      -7px 0 0 #f54c48,
+      0 7px 0 #f54c48,
+      0 -7px 0 #f54c48,
+      5px 5px 0 #f54c48,
+      -5px 5px 0 #f54c48,
+      5px -5px 0 #f54c48,
+      -5px -5px 0 #f54c48,
+      0 10px 0 rgba(177,33,31,0.55);
     animation: congrats-pop 0.6s cubic-bezier(0.175,0.885,0.32,1.275) both,
                congrats-shine 2s 0.6s ease-in-out infinite alternate;
-    filter: drop-shadow(0 5px 0 #222222);
+    filter: drop-shadow(0 5px 0 rgba(177,33,31,0.45));
   }
   @keyframes congrats-pop {
     0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
@@ -220,8 +223,8 @@ components.html("""
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
   @keyframes congrats-shine {
-    0%   { filter: drop-shadow(0 5px 0 #222222); }
-    100% { filter: drop-shadow(0 7px 0 #111111); }
+    0%   { filter: drop-shadow(0 5px 0 rgba(177,33,31,0.45)); }
+    100% { filter: drop-shadow(0 7px 0 rgba(177,33,31,0.6)); }
   }
   .congrats-icon {
     display: block;
@@ -653,6 +656,31 @@ function playFanfare() {
     osc.start(start); osc.stop(start + duration + 0.03);
   }
 
+  function playCheer(start) {
+    const duration = 1.35;
+    const bufLen = Math.floor(ctx.sampleRate * duration);
+    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) {
+      const t = i / bufLen;
+      const swell = Math.sin(Math.PI * t);
+      data[i] = (Math.random() * 2 - 1) * swell * 0.55;
+    }
+
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const bandpass = ctx.createBiquadFilter();
+    bandpass.type = 'bandpass';
+    bandpass.frequency.setValueAtTime(1200, start);
+    bandpass.Q.value = 0.75;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.linearRampToValueAtTime(0.18, start + 0.18);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+    src.connect(bandpass); bandpass.connect(gain); gain.connect(master);
+    src.start(start); src.stop(start + duration + 0.03);
+  }
+
   const hits = [
     [392.00, 0.00, 0.18],
     [523.25, 0.22, 0.18],
@@ -666,6 +694,7 @@ function playFanfare() {
   [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq) => {
     playTone(freq, chordStart, 1.85, 0.20);
   });
+  playCheer(now + 1.48);
 }
 
 function launchConfetti() {
