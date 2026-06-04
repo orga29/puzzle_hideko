@@ -31,6 +31,15 @@ components.html("""
   * { box-sizing: border-box; }
   body { margin: 0; background: #f0f0f0; display: flex; justify-content: center; }
   #app { font-family: Arial, sans-serif; text-align: center; padding: 2px 4px; width: 100%; max-width: 480px; }
+  .topbar {
+    position: relative;
+    min-height: 30px;
+    width: min(86vw, 400px);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
   #title { font-size: clamp(16px, 4.6vw, 22px); font-weight: bold; margin: 0 0 2px; }
   #info { font-size: clamp(12px, 3.5vw, 17px); margin: 2px 0; font-weight: bold; }
   #board {
@@ -74,7 +83,10 @@ components.html("""
     justify-content: center;
     flex-wrap: wrap;
     gap: 4px;
+    width: min(86vw, 400px);
     margin: clamp(24px, 6.4vw, 36px) 0 4px;
+    margin-left: auto;
+    margin-right: auto;
   }
   button {
     font-size: clamp(11px, 3vw, 14px);
@@ -84,7 +96,20 @@ components.html("""
     background: #4a90d9; color: white; font-weight: bold;
   }
   button:hover { background: #2a70b9; }
-  #soundBtn { background: #5cb85c; }
+  .btns button {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  #soundBtn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: #5cb85c;
+    padding: 5px 9px;
+    margin: 0;
+    font-size: clamp(10px, 2.8vw, 13px);
+  }
   #soundBtn:hover { background: #3d8b3d; }
   #soundBtn.muted { background: #aaa; }
   #soundBtn.muted:hover { background: #888; }
@@ -93,7 +118,7 @@ components.html("""
     display: flex;
     justify-content: center;
     gap: 14px;
-    margin: 2px 0 6px;
+    margin: 0 0 4px;
     font-size: clamp(11px, 3vw, 13px);
   }
   .info-link {
@@ -249,20 +274,22 @@ components.html("""
 </head>
 <body>
 <div id="app">
-  <div id="title">🔢15Puzzle</div>
+  <div class="topbar">
+    <div id="title">🔢15Puzzle</div>
+    <button onclick="toggleSound()" id="soundBtn">🔊 音ON</button>
+  </div>
   <div id="info">移動回数: 0</div>
   <div id="board"></div>
   <div class="btns">
     <button onclick="shuffleBoard()">🔀 シャッフル</button>
     <button onclick="resetBoard()">🔄 リセット</button>
     <button onclick="showHint()" id="hintBtn">💡 ヒント</button>
-    <button onclick="toggleSound()" id="soundBtn">🔊 音ON</button>
   </div>
-  <div id="msg"></div>
   <div class="info-links">
     <button class="info-link" onclick="openInfoModal('howto')">遊び方</button>
     <button class="info-link" onclick="openInfoModal('history')">15パズルの歴史的背景</button>
   </div>
+  <div id="msg"></div>
 </div>
 <canvas id="confetti-canvas"></canvas>
 <div id="congrats-overlay">
