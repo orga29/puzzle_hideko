@@ -31,7 +31,7 @@ components.html("""
   * { box-sizing: border-box; }
   body { margin: 0; background: #f0f0f0; display: flex; justify-content: center; }
   #app { font-family: Arial, sans-serif; text-align: center; padding: 2px 4px; width: 100%; max-width: 480px; }
-  #title { font-size: clamp(11px, 3vw, 14px); font-weight: bold; margin: 0 0 2px; }
+  #title { font-size: clamp(16px, 4.6vw, 22px); font-weight: bold; margin: 0 0 2px; }
   #info { font-size: clamp(12px, 3.5vw, 17px); margin: 2px 0; font-weight: bold; }
   #board {
     position: relative;
